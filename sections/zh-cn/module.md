@@ -91,7 +91,7 @@ console.log(a);
 module.exports = b;
 ```
 
-require()加载机制：[js模块的循环加载][http://www.ruanyifeng.com/blog/2015/11/circular-dependency.html] [require()源码解读][http://www.ruanyifeng.com/blog/2015/05/require.html]
+require()加载机制：[`js模块的循环加载`][http://www.ruanyifeng.com/blog/2015/11/circular-dependency.html] [`require()源码解读`][http://www.ruanyifeng.com/blog/2015/05/require.html]
 
 > bingou
 
