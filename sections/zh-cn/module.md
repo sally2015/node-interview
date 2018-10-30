@@ -78,6 +78,7 @@ const b = 'b';
 console.log(a);
 module.exports = b;
 ```
+```
 执行node a.js 输出{}，b;执行node b.js 输出{}, a;
 node a.js执行过程分析：
 1.require('b');进入执行b.js文件
@@ -85,7 +86,7 @@ node a.js执行过程分析：
 3.赋值变量b
 4.输出a.js的module.exports
 5.将b赋值到b.js的module.exports,并赋值给a.js的b，并输出。
-
+```
 另外还有非常基础和常见的问题, 比如 module.exports 和 exports 的区别这里也能一并解决了 exports 只是 module.exports 的一个引用. 没看懂可以在细看我以前发的[帖子](https://cnodejs.org/topic/5734017ac3e4ef7657ab1215).
 
 再晋级一点, 众所周知, node 的模块机制是基于 [`CommonJS`](http://javascript.ruanyifeng.com/nodejs/module.html) 规范的. 对于从前端转 node 的同学, 如果面试官想问的难一点会考验关于 [`CommonJS`](http://javascript.ruanyifeng.com/nodejs/module.html) 的一些问题. 比如比较 `AMD`, `CMD`, [`CommonJS`](http://javascript.ruanyifeng.com/nodejs/module.html) 三者的区别, 包括询问关于 node 中 `require` 的实现原理等.
