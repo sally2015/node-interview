@@ -65,6 +65,26 @@ function require(...) {
 > <a name="q-loop"></a> a.js 和 b.js 两个文件互相 require 是否会死循环? 双方是否能导出变量? 如何从设计上避免这种问题?
 
 ② 不会, 先执行的导出空对象, 通过导出工厂函数让对方从函数去拿比较好避免. 模块在导出的只是 `var module = { exports: {} };` 中的 exports, 以从 a.js 启动为例, a.js 还没执行完 exports 就是 `{}` 在 b.js 的开头拿到的就是 `{}` 而已.
+```js
+//a.js
+const b = require('./b');
+const a = 'a';
+console.log(b);
+module.exports = a;
+
+//b.js
+const a = require('./a');
+const b = 'b';
+console.log(a);
+module.exports = b;
+```
+执行node a.js 输出{}，b;执行node b.js 输出{}, a;
+node a.js执行过程分析：
+1.require('b');进入执行b.js文件
+2.执行第一句require('a')引用了module.exports，此时a文件中的module.exports为一个{}空对象
+3.赋值变量b
+4.输出a.js的module.exports
+5.将b赋值到b.js的module.exports,并赋值给a.js的b，并输出。
 
 另外还有非常基础和常见的问题, 比如 module.exports 和 exports 的区别这里也能一并解决了 exports 只是 module.exports 的一个引用. 没看懂可以在细看我以前发的[帖子](https://cnodejs.org/topic/5734017ac3e4ef7657ab1215).
 
