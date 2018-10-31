@@ -67,32 +67,42 @@ function require(...) {
 ② 不会, 先执行的导出空对象, 通过导出工厂函数让对方从函数去拿比较好避免. 模块在导出的只是 `var module = { exports: {} };` 中的 exports, 以从 a.js 启动为例, a.js 还没执行完 exports 就是 `{}` 在 b.js 的开头拿到的就是 `{}` 而已.
 > bingou
 
-```
-执行node a.js 输出{}，b;执行node b.js 输出{}, a;
-node a.js执行过程分析：
-1.require('b');进入执行b.js文件
-2.执行第一句require('a')引用了module.exports，此时a文件中的module.exports为一个{}空对象
-3.赋值变量b
-4.输出a.js的module.exports
-5.将b赋值到b.js的module.exports,并赋值给a.js的b，并输出。
-```
-
-```js
-//a.js
-const b = require('./b');
-const a = 'a';
-console.log(b);
-module.exports = a;
-
-//b.js
-const a = require('./a');
-const b = 'b';
-console.log(a);
-module.exports = b;
-```
-
 require()加载机制：[`js模块的循环加载`](http://www.ruanyifeng.com/blog/2015/11/circular-dependency.html) [`require()源码解读`](http://www.ruanyifeng.com/blog/2015/05/require.html)
 
+require加载：
+- commonjs一个模块就是一个脚本，`require`第一次加载脚本就会整个脚本（加载时执行），然后在内存生成一个对象。以后再执行这个模块就会从这个对象的exports属性上取值，即再次执行require命令也不会再次执行该模块，而是到缓存中取值。
+  ```js
+  {
+    id: '...', //属性名
+    exports: { ... }, //模块输出的各个接口
+    loaded: true, //表示模块脚本是否已经执行完毕
+    ...
+  }
+  ```
+- 一旦出现某个模块被循环加载，只输出已经执行的部分，还未执行部分不会被输出。
+
+es6模块加载：
+- es6模块的运行机制是遇到模块加载命令import时，不会去执行模块而是只生成一个引用，到真正需要用到时再到模块中去取值。
+- 因为是动态引用，不存在缓存值的问题，模块的值绑定在所在模块，es6不关心是否发生了循环加载，只需根据指向被加载模块的引用去取值；这就需要开发者自己暴增真正取值的时候能够取到，只要引用存在代码就能执行。
+  ```js
+  //commonjs
+  let {stat, exists, readFile} = reuqire('fs');
+  
+  //等同于
+  let _fs = require('fs');
+  let stat = _fs.stat;
+  let exists = _fs.exists;
+  let readfile = _fs.readfile;
+  ```
+  - 上述代码实质是加载了整个fs模块（fs的所有方法），生成一个_fs对象，然后从这个对象上读取3个方法，成为运行时加载，因为只有运行时才能得到这个对象，导致没有办法再编译时做静态优化。
+  
+  ```js
+  import { stat, exists, readFile } from 'fs';
+  ```
+  - es6模块不是对象，而是通过export命令显示指定输出代码，再通过import命令输入。上面的代码实质时从fs模块加载3个方法，**其他方法不加载**。
+  - 这种加载称为编译时加载或者静态加载，，即es6编译时就可以完成模块的加载，效率要比commonjs模块加载方式高。当然这也导致没法引用es6模块本身，因为它不是对象。
+  - import命令会被js引擎静态分析，先于模块内其他语句的执行，由于es6模块时编译时加载使得静态分析成为可能，因此可以使用treeShaking进行优化代码。
+  
 > bingou
 
 另外还有非常基础和常见的问题, 比如 module.exports 和 exports 的区别这里也能一并解决了 exports 只是 module.exports 的一个引用. 没看懂可以在细看我以前发的[帖子](https://cnodejs.org/topic/5734017ac3e4ef7657ab1215).
