@@ -103,6 +103,22 @@ es6模块加载：
 - 这种加载称为编译时加载或者静态加载，，即es6编译时就可以完成模块的加载，效率要比commonjs模块加载方式高。当然这也导致没法引用es6模块本身，因为它不是对象。
 - import命令会被js引擎静态分析，先于模块内其他语句的执行，由于es6模块时编译时加载使得静态分析成为可能，因此可以使用treeShaking进行优化代码。
   
+require的路径处理
+-  脚本文件 /home/ry/projects/foo.js 执行了 require('bar'),依次搜索一下路径确定bar目录
+    ```js
+    /home/ry/projects/node_modules/bar
+    /home/ry/node_modules/bar
+    /home/node_modules/bar
+    /node_modules/bar
+    ```
+- node先将bar当成文件名依次搜索bar/bar.js/bar.json/bar.node,只要一个成功就返回
+- 如果都不成功则说明bar可能是目录名，尝试加载
+    ```js
+    bar/package.json（main字段）
+    bar/index.js
+    bar/index.json
+    bar/index.node
+    ```
 > bingou
 
 另外还有非常基础和常见的问题, 比如 module.exports 和 exports 的区别这里也能一并解决了 exports 只是 module.exports 的一个引用. 没看懂可以在细看我以前发的[帖子](https://cnodejs.org/topic/5734017ac3e4ef7657ab1215).
